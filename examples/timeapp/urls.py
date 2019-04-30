@@ -1,8 +1,9 @@
-from .main import handle_request
+from httpd import default_handler, get_current_time
 
 
 def urls(config):
-    secret = config['secret']
+    path = config['path']
     return (
-        ('GET', f'^/{secret}$', handle_request)
+        ('GET', f'^/{path}$', get_current_time),
+        ('GET', '^.*$', default_handler),
     )
