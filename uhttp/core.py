@@ -148,7 +148,7 @@ class WsgiApplication:
                 if not isinstance(response, Response):
                     raise Exception(f'Invalid response type `{str(type(response))}`. Expected types: `str` / `bytes` / `dict` / `Response`')
             else:
-                response = Response(body=b'Page not found', status_code=404)
+                response = Response(body=b'Not found', status_code=404)
         except Exception as e:
             response = Response(body=b'Internal server error', status_code=500, exception=e)
         finally:

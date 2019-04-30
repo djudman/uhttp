@@ -1,5 +1,7 @@
 import unittest
+import os
 import threading
+import sys
 from os.path import realpath, dirname
 from uhttp.core import WsgiApplication
 from uhttp.client import make_request
@@ -29,6 +31,8 @@ def test_handler_error(request):
 
 class TestWsgiApp(unittest.TestCase):
     def setUp(self):
+        self.devnull = open(os.devnull, 'w')
+        sys.stdout = sys.stderr = self.devnull
         app = WsgiApplication(
         src_root=realpath(dirname(__file__)),
             urls=(
@@ -43,6 +47,7 @@ class TestWsgiApp(unittest.TestCase):
 
     def tearDown(self):
         self.server.join()
+        self.devnull.close()
 
     def test_empty_response(self):
         response = make_request('http://127.0.0.1:8000/empty')
@@ -51,3 +56,7 @@ class TestWsgiApp(unittest.TestCase):
     def test_server_error(self):
         response = make_request('http://127.0.0.1:8000/error')
         self.assertEqual(response, b'Internal server error')
+
+    def test_not_found(self):
+        response = make_request('http://127.0.0.1:8000/notfound')
+        self.assertEqual(response, b'Not found')
