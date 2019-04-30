@@ -5,4 +5,5 @@ time-app:
 	@PWD=$(pwd)
 	@PYTHONPATH="$(PWD):$(PWD)/examples/timeapp" python3 ./examples/timeapp/httpd.py
 test:
-	@python3 ./tests/run.py
+	@PWD=$(pwd)
+	@cd ./tests && PYTHONPATH="$(PWD)" python3 -m unittest

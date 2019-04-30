@@ -7,11 +7,14 @@ def make_request(url, method='GET', params=None, body=None, headers=None):
     parse_result = urlparse(url)
     protocol = parse_result.scheme
     hostname = parse_result.netloc
+    port = None
+    if ':' in hostname:
+        hostname, port = hostname.split(':')
     if protocol == 'https':
         context = ssl.SSLContext()
-        conn = HTTPSConnection(hostname, context=context)
+        conn = HTTPSConnection(hostname, port, context=context)
     elif protocol == 'http':
-        conn = HTTPConnection(hostname)
+        conn = HTTPConnection(hostname, port)
     else:
         raise Exception('Unsupported protocol {}'.format(protocol))
     if headers is None:

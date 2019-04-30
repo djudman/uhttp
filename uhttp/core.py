@@ -102,8 +102,8 @@ class Response:
             'status': self.status,
         }
         if self.exception:
-            tb = self.exception.traceback
-            data['exception'] = traceback.format_tb(tb)
+            tb = self.exception.__traceback__
+            data['exception'] = ''.join(traceback.format_tb(tb))
         return data
 
     def __str__(self):
