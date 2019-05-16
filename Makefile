@@ -1,3 +1,7 @@
+all:
+	@python3 setup.py sdist
+install:
+	@python3 setup.py install
 echo-app:
 	@PWD=$(pwd)
 	@PYTHONPATH="$(PWD)" python3 ./examples/echoapp/httpd.py

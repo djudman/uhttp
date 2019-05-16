@@ -1,6 +1,9 @@
+dist
+build
 __pycache__
 *.pyc
 *.log
 .idea
 .cache
 .DS_Store
+MANIFEST
