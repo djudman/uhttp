@@ -23,10 +23,11 @@ class Request:
         self.server_protocol = wsgi_environ.get('SERVER_PROTOCOL')
         self.input = wsgi_environ.get('wsgi.input')
 
-        self.GET = {}
         if self.query_string:
-            for name, value in parse_qsl(self.query_string):
-                self.GET[name] = value
+            qs_params = parse_qsl(self.query_string)
+            self.GET = {name: value for name, value in qs_params}
+        else:
+            self.GET = {}
 
     def read(self):
         if not self.body and self.input and self.content_length > 0:
