@@ -1,11 +1,12 @@
 from time import time
 from os.path import dirname, realpath
-from uhttp.core import WsgiApplication
+from uhttp import WsgiApplication
 
 
 def default_handler(request):
     path = request.app.config['path']
     return f'Invalid path `{request.path}`. Try `/{path}`\n'
+
 
 def get_current_time(request):
     return f'{time()}\n'

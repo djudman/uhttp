@@ -1,5 +1,5 @@
 from os.path import dirname, realpath
-from uhttp.core import WsgiApplication
+from uhttp import WsgiApplication
 
 
 def handle_request(request):

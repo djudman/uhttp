@@ -29,6 +29,9 @@ def test_handler_error(request):
     raise Exception('test')
 
 
+def test_hello_world(request):
+    return 'world'
+
 class TestWsgiApp(unittest.TestCase):
     def setUp(self):
         self.devnull = open(os.devnull, 'w')
@@ -38,6 +41,7 @@ class TestWsgiApp(unittest.TestCase):
             urls=(
                 ('GET', '^/empty$', test_handler_empty),
                 ('GET', '^/error$', test_handler_error),
+                ('GET', '^/hello$', test_hello_world),
             )
         )
         ready = threading.Event()
@@ -60,3 +64,7 @@ class TestWsgiApp(unittest.TestCase):
     def test_not_found(self):
         response = make_request('http://127.0.0.1:8000/notfound')
         self.assertEqual(response, b'Not found')
+
+    def test_hello_world(self):
+        response = make_request('http://127.0.0.1:8000/hello')
+        self.assertEqual(response, b'world')

@@ -134,6 +134,7 @@ class WsgiApplication:
 
     def wsgi_request(self, wsgi_environ):
         request = None
+        response = None
         try:
             request = Request(wsgi_environ)
             request.read()
