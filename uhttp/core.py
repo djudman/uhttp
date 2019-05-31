@@ -156,6 +156,22 @@ class WsgiApplication:
             self.log_request(request, response)
         return response.status, response.headers, response.body
 
+    def log(self, *, level='info', message=None, data=None):
+        level = level.lower()
+        log_entry = {
+            'ts': time(),
+            'level': level.lower(),
+        }
+        if message is not None:
+            if not isinstance(message, str):
+                raise Exception('Invalid type for parameter `message`. Expected `string`')
+            log_entry['message'] = message
+        if data is not None:
+            if not isinstance(data, dict):
+                raise Exception('Invalid type for parameter `data`. Expected `dict`')
+            log_entry.update(data)
+        print(json.dumps(log_entry))
+
     def log_request(self, request, response):
         message = {
             'ts': time(),
