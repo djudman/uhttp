@@ -154,7 +154,7 @@ class WsgiApplication:
         except Exception as e:
             response = Response(body=b'Internal server error', status_code=500, exception=e)
         finally:
-            self.log_request(request, response)
+            self.__log_request(request, response)
         return response.status, response.headers, response.body
 
     def log(self, *, level='info', message=None, data=None):
@@ -173,9 +173,8 @@ class WsgiApplication:
             log_entry.update(data)
         print(json.dumps(log_entry))
 
-    def log_request(self, request, response):
+    def __log_request(self, request, response):
         message = {
-            'ts': time(),
             'request': request.__to_dict__(),
             'response': response.__to_dict__(),
         }
@@ -189,8 +188,7 @@ class WsgiApplication:
         else:
             level = 'info'
         message['level'] = level
-        log_function = getattr(self.logger, level)
-        log_function(json.dumps(message))
+        self.log(data=message)
 
     def __call__(self, environ, start_response):
         status, response_headers, response_body = self.wsgi_request(environ)
