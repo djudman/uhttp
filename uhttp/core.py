@@ -101,10 +101,8 @@ class Response:
             'body': body,
             'headers': self.headers,
             'status': self.status,
+            'exception': self.exception,
         }
-        if self.exception:
-            tb = self.exception.__traceback__
-            data['exception'] = ''.join(traceback.format_tb(tb))
         return data
 
     def __str__(self):
@@ -151,8 +149,10 @@ class WsgiApplication:
                     raise Exception(f'Invalid response type `{str(type(response))}`. Expected types: `str` / `bytes` / `dict` / `Response`')
             else:
                 response = Response(body=b'Not found', status_code=404)
-        except Exception as e:
-            response = Response(body=b'Internal server error', status_code=500, exception=e)
+        except Exception:
+            err = traceback.format_exc()
+            response = Response(body=b'Internal server error', status_code=500,
+                                exception=err)
         finally:
             self.__log_request(request, response)
         return response.status, response.headers, response.body
