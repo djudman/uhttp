@@ -1,10 +1,10 @@
 import json
+import logging
 import traceback
 from time import time
 from urllib.parse import parse_qsl
 
 from .router import UrlRouter
-from .logging import default_logger
 
 
 class Request:
@@ -121,12 +121,12 @@ class HTTPFound(Response):
 
 
 class WsgiApplication:
-    def __init__(self, src_root, *, urls=None, config=None, logger=None):
+    def __init__(self, src_root, *, urls=None, config=None):
         if config is None:
             config = {}
         self.config = config
         self.router = UrlRouter(src_root, config)
-        self.logger = logger if logger is not None else default_logger()
+        self.logger = logging.getLogger('uhttp')
         if urls:
             for method, path, handler in urls:
                 self.router.add_route(path, handler, method=method)
@@ -158,11 +158,6 @@ class WsgiApplication:
         return response.status, response.headers, response.body
 
     def __log_request(self, request: Request, response: Response):
-        message = {
-            'ts': time(),
-            'request': request.__to_dict__(),
-            'response': response.__to_dict__(),
-        }
         first_digit = response.status_code // 100
         if response.exception:
             level = 'fatal'
@@ -172,7 +167,10 @@ class WsgiApplication:
             level = 'warning'
         else:
             level = 'info'
-        message['level'] = level
+        message = {
+            'request': request.__to_dict__(),
+            'response': response.__to_dict__(),
+        }
         getattr(self.logger, level)(message)
 
     def __call__(self, environ, start_response):
