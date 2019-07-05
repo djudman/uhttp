@@ -4,7 +4,7 @@ from time import time
 from urllib.parse import parse_qsl
 
 from .router import UrlRouter
-from .logging import create_logger
+from .logging import default_logger
 
 
 class Request:
@@ -121,12 +121,12 @@ class HTTPFound(Response):
 
 
 class WsgiApplication:
-    def __init__(self, src_root, *, urls=None, config=None):
+    def __init__(self, src_root, *, urls=None, config=None, logger=None):
         if config is None:
             config = {}
         self.config = config
         self.router = UrlRouter(src_root, config)
-        self.logger = create_logger()
+        self.logger = logger if logger is not None else default_logger()
         if urls:
             for method, path, handler in urls:
                 self.router.add_route(path, handler, method=method)
@@ -157,24 +157,9 @@ class WsgiApplication:
             self.__log_request(request, response)
         return response.status, response.headers, response.body
 
-    def log(self, *, level='info', message=None, data=None):
-        level = level.lower()
-        log_entry = {
-            'ts': time(),
-            'level': level.lower(),
-        }
-        if message is not None:
-            if not isinstance(message, str):
-                raise Exception('Invalid type for parameter `message`. Expected `string`')
-            log_entry['message'] = message
-        if data is not None:
-            if not isinstance(data, dict):
-                raise Exception('Invalid type for parameter `data`. Expected `dict`')
-            log_entry.update(data)
-        print(json.dumps(log_entry))
-
-    def __log_request(self, request, response):
+    def __log_request(self, request: Request, response: Response):
         message = {
+            'ts': time(),
             'request': request.__to_dict__(),
             'response': response.__to_dict__(),
         }
@@ -188,7 +173,7 @@ class WsgiApplication:
         else:
             level = 'info'
         message['level'] = level
-        self.log(data=message)
+        getattr(self.logger, level)(message)
 
     def __call__(self, environ, start_response):
         status, response_headers, response_body = self.wsgi_request(environ)

@@ -15,22 +15,11 @@ class TestWebServer(threading.Thread):
 
     def run(self):
         from wsgiref.simple_server import make_server
-        server = make_server('127.0.0.1', 8000, self.app)
+        server = make_server("127.0.0.1", 8000, self.app)
         self.ready.set()
         server.handle_request()
         server.server_close()
 
-
-def test_handler_empty(request):
-    return b''
-
-
-def test_handler_error(request):
-    raise Exception('test')
-
-
-def test_hello_world(request):
-    return 'world'
 
 class TestWsgiApp(unittest.TestCase):
     def setUp(self):
@@ -39,9 +28,9 @@ class TestWsgiApp(unittest.TestCase):
         app = WsgiApplication(
         src_root=realpath(dirname(__file__)),
             urls=(
-                ('GET', '^/empty$', test_handler_empty),
-                ('GET', '^/error$', test_handler_error),
-                ('GET', '^/hello$', test_hello_world),
+                ("GET", "^/empty$", lambda request: b''),
+                ("GET", "^/error$", lambda request: Exception("test")),
+                ("GET", "^/hello$", lambda request: "world"),
             )
         )
         ready = threading.Event()
@@ -54,16 +43,16 @@ class TestWsgiApp(unittest.TestCase):
         self.devnull.close()
 
     def test_empty_response(self):
-        response = make_request('http://127.0.0.1:8000/empty')
-        self.assertEqual(response, b'')
+        response = make_request("http://127.0.0.1:8000/empty")
+        self.assertEqual(response, b"")
 
     def test_server_error(self):
-        response = make_request('http://127.0.0.1:8000/error')
-        self.assertEqual(response, b'Internal server error')
+        response = make_request("http://127.0.0.1:8000/error")
+        self.assertEqual(response, b"Internal server error")
 
     def test_not_found(self):
-        response = make_request('http://127.0.0.1:8000/notfound')
-        self.assertEqual(response, b'Not found')
+        response = make_request("http://127.0.0.1:8000/notfound")
+        self.assertEqual(response, b"Not found")
 
     def test_hello_world(self):
         response = make_request('http://127.0.0.1:8000/hello')
