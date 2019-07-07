@@ -70,7 +70,7 @@ class Response:
         500: 'Internal Server Error',
     }
 
-    def __init__(self, body, status_code=200, headers=None, *, exception=None):
+    def __init__(self, body, status_code=200, headers=None):
         self.create_time = time()
         self.body = body if body else b''
         if isinstance(self.body, str):
@@ -92,7 +92,6 @@ class Response:
         status_message = self.statuses.get(status_code, 'Unknown')
         self.status_code = status_code
         self.status = f'{status_code} {status_message}'
-        self.exception = exception
 
     def __to_dict__(self):
         body = self.body.decode()  # TODO: to check `Content-Type` header. If it is `application/octet-stream`, then to convert data to base64.
@@ -101,7 +100,6 @@ class Response:
             'body': body,
             'headers': self.headers,
             'status': self.status,
-            'exception': self.exception,
         }
         return data
 
@@ -134,6 +132,7 @@ class WsgiApplication:
     def wsgi_request(self, wsgi_environ):
         request = None
         response = None
+        exc = None
         try:
             request = Request(wsgi_environ)
             request.read()
@@ -150,27 +149,24 @@ class WsgiApplication:
             else:
                 response = Response(body=b'Not found', status_code=404)
         except Exception:
-            err = traceback.format_exc()
-            response = Response(body=b'Internal server error', status_code=500,
-                                exception=err)
+            exc = traceback.format_exc()
+            response = Response(body=b'Internal server error', status_code=500)
         finally:
-            self.__log_request(request, response)
+            self.__log_request(request, response, exc)
         return response.status, response.headers, response.body
 
-    def __log_request(self, request: Request, response: Response):
-        first_digit = response.status_code // 100
-        if response.exception:
-            level = 'fatal'
-        elif first_digit == 5:
-            level = 'error'
-        elif first_digit == 4:
-            level = 'warning'
-        else:
-            level = 'info'
+    def __log_request(self, request: Request, response: Response, str_exc: str):
         message = {
             'request': request.__to_dict__(),
             'response': response.__to_dict__(),
         }
+        if str_exc:
+            message['exception'] = str_exc
+            level = 'fatal'
+        else:
+            first_digit = response.status_code // 100
+            error_level_map = {5: 'error', 4: 'warning'}
+            level = error_level_map.get(first_digit, 'info')
         getattr(self.logger, level)(message)
 
     def __call__(self, environ, start_response):
