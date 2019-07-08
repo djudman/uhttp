@@ -29,8 +29,9 @@ class UrlRouter:
         spec = importlib.util.spec_from_file_location('urls', filename)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        urls = module.urls(self.config)
-        return urls
+        if callable(module.urls):
+            return module.urls(self.config)
+        return module.urls
 
     def get_handler(self, url_path, http_method):
         for method, regex_object, handler in self.handlers:
