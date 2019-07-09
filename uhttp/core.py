@@ -22,7 +22,7 @@ class Request:
         self.method = wsgi_environ.get('REQUEST_METHOD', 'GET')
         self.server_protocol = wsgi_environ.get('SERVER_PROTOCOL')
         self.input = wsgi_environ.get('wsgi.input')
-
+        self.http_variables = {name.upper(): value for name, value in wsgi_environ.items() if name.startswith("HTTP_")}
         if self.query_string:
             qs_params = parse_qsl(self.query_string)
             self.GET = {name: value for name, value in qs_params}
