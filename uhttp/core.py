@@ -1,6 +1,8 @@
+import hashlib
 import json
 import logging
 import traceback
+from pathlib import Path
 from time import time
 from urllib.parse import parse_qsl
 
@@ -173,3 +175,14 @@ class WsgiApplication:
         status, response_headers, response_body = self.wsgi_request(environ)
         start_response(status, response_headers)
         return [response_body]
+
+    @property
+    def admins(self):
+        result = []
+        config = self.config.get("uhttp")
+        if config and "admins" in config:
+            result.extend([{
+                "name": name,
+                "hash": hash_value,
+            } for name, hash_value in config["admins"]])
+        return result
