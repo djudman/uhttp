@@ -161,6 +161,8 @@ class WsgiApplication:
         return response.status, response.headers, response.body
 
     def __log_request(self, request: Request, response: Response, str_exc: str):
+        if hasattr(request, "no_log") and request.no_log and not str_exc:
+            return
         message = {
             'request': request.__to_dict__(),
             'response': response.__to_dict__(),
