@@ -20,7 +20,7 @@ class file:
 
     def __call__(self, request: Request):
         if self._auth_required:
-            data = authenticated(self._read_file, login_url=self._login_url)
+            data = authenticated(self._read_file, login_url=self._login_url)(request)
             if isinstance(data, Response):
                 return data
         else:
