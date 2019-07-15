@@ -16,11 +16,15 @@ class auth_required:
 
 
 class html:
-    def __init__(self, method, filename):
+    def __init__(self, method, filename, auth_required=False):
         self._method = method
         self._filename = filename
+        self._auth_required = auth_required
 
     def __call__(self, request: Request):
+        if self._auth_required:
+            self._auth_required = False
+            return auth_required(self)(request)
         config = request.app.config
         filepath = Path(config["html_root"], self._filename)
         data = filepath.read_bytes()
