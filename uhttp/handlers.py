@@ -10,8 +10,8 @@ class file:
                  auth_required=False, login_url=None):
         self._filename = filename
         self._content_type = content_type
-        self.__read_file = authenticated(self._read_file, login_url=login_url) \
-                           if auth_required else self._read_file
+        self._auth_required = auth_required
+        self._login_url = login_url
 
     def _read_file(self, request):
         config = request.app.config
@@ -19,7 +19,12 @@ class file:
         return filepath.read_bytes()
 
     def __call__(self, request: Request):
-        data = self.__read_file(request)
+        if self._auth_required:
+            data = authenticated(self._read_file, login_url=self._login_url)
+            if isinstance(data, Response):
+                return data
+        else:
+            data = self._read_file(request)
         return Response(data, headers=[('Content-Type', self._content_type)])
 
 
