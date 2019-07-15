@@ -7,10 +7,10 @@ from .shortcuts import auth_required as authenticated
 
 class file:
     def __init__(self, filename, content_type="application/octet-stream",
-                 auth_required=False):
+                 auth_required=False, login_url=None):
         self._filename = filename
         self._content_type = content_type
-        self.__read_file = authenticated(self._read_file) \
+        self.__read_file = authenticated(self._read_file, login_url=login_url) \
                            if auth_required else self._read_file
 
     def _read_file(self, request):
