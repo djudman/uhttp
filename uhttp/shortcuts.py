@@ -1,17 +1,16 @@
-from .core import Request, Response
+from .core import Request, Response, HTTPFound
 from .errors import InvalidAuthToken
 
 
-def _check_auth_token(request: Request):
-    token = request.http_variables.get("HTTP_AUTH_TOKEN")
-    if token not in request.app.tokens:
-        raise InvalidAuthToken(token)
-
-
 class auth_required:
-    def __init__(self, method):
+    def __init__(self, method, login_url=None):
         self._method = method
+        self._login_url = login_url
 
     def __call__(self, request: Request):
-        _check_auth_token(request)
-        return self._method(request)
+        token = request.http_variables.get("HTTP_AUTH_TOKEN")
+        if token in request.app.tokens:
+            return self._method(request)
+        if self._login_url:
+            return HTTPFound(self._login_url)
+        raise InvalidAuthToken(token)
