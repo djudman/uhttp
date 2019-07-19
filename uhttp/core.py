@@ -6,6 +6,8 @@ from pathlib import Path
 from time import time
 from urllib.parse import parse_qsl
 
+import gunicorn
+
 from .router import UrlRouter
 
 
@@ -122,6 +124,7 @@ class HTTPFound(Response):
 
 class WsgiApplication:
     def __init__(self, src_root, *, urls=None, config=None):
+        gunicorn.SERVER_SOFTWARE = None
         if config is None:
             config = {}
         self.config = config
