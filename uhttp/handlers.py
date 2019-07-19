@@ -2,7 +2,7 @@ from functools import partial
 from pathlib import Path
 
 from .core import Request, Response
-from .shortcuts import auth_required as authenticated
+from .auth.shortcuts import auth_required as authenticated
 
 
 class file:
