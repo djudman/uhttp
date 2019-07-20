@@ -83,16 +83,12 @@ class Response:
             pass
         else:
             raise Exception('Parameter `body` must have `str` or `bytes` type.')
-        content_length = len(self.body)
-        response_headers = []
-        if content_length > 0:
-            response_headers.append(('Content-Length', str(content_length)))
-        if headers:
-            for name, value in headers:
-                response_headers.append((name, value))
-        else:
-            response_headers.append(('Content-Type', 'text/plain'))
-        self.headers = response_headers
+        headers = headers if headers is not None else []
+        _headers = {name.lower(): value for name, value in headers}
+        if 'content-type' not in _headers:
+            _headers['content-type'] = 'text/plain'
+        _headers['content-length'] = str(len(self.body))
+        self.headers = [(name, value) for name, value in _headers.items()]
         status_message = self.statuses.get(status_code, 'Unknown')
         self.status_code = status_code
         self.status = f'{status_code} {status_message}'
