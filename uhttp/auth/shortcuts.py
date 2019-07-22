@@ -1,4 +1,4 @@
-from .jwt import verify_token
+from .jwt import verify_token, JwtInvalidSignature
 from .session import verify_session
 from ..core import Request, Response, HTTPFound
 from ..errors import InvalidAuthToken
@@ -13,8 +13,13 @@ def auth_required(method=None, *, login_url=None):
             if token:
                 config = request.app.config
                 secret = config["secret"]
-                header, payload = verify_token(token, secret)
-                session_id = payload["sid"]
+                try:
+                    header, payload = verify_token(token, secret)
+                except JwtInvalidSignature as e:
+                    session_id = payload["sid"]
+                    if login_url:
+                        return HTTPFound(login_url)
+                    raise e
                 admins = config.get("admins", [])
                 username = verify_session(session_id, admins)
                 if username:
