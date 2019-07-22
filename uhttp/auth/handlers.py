@@ -18,6 +18,6 @@ def login(request: Request):
             sid = create_session(admin_username, admin_password_hash)
             jwt_token = create_token({"sid": sid}, config["secret"])
             headers = [
-                ("Set-Cookie", f"token={jwt_token}; Secure; SameSite=Strict"),
+                ("Set-Cookie", f"token={jwt_token}; Secure; SameSite=Strict;"),
             ]
             return Response(jwt_token, headers=headers)

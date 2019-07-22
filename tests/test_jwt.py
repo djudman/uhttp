@@ -11,7 +11,7 @@ class TestJwt(unittest.TestCase):
             "sid": "xxx",
         }
         token = create_token(payload, "secret")
-        jwt_token = "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzaWQiOiAieHh4In0=.i6Wsev3NDhRY8Ao80A+zaaiVa3Nf+nuDihWuVlW4p2Y="
+        jwt_token = "eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzaWQiOiAieHh4In0.BtGutwEv6/M95b90AhHs+vOZodaF8yBOb0ezyneQqig"
         self.assertEqual(token, jwt_token)
         header, payload = verify_token(token, "secret")
         self.assertEqual(header, {"alg": "HS256", "typ": "JWT"})
