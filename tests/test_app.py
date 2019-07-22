@@ -1,6 +1,7 @@
-import unittest
+import io
 import os
 import threading
+import unittest
 import sys
 from os.path import realpath, dirname
 from uhttp.core import WsgiApplication
@@ -23,8 +24,9 @@ class TestWebServer(threading.Thread):
 
 class TestWsgiApp(unittest.TestCase):
     def setUp(self):
-        self.devnull = open(os.devnull, 'w')
-        sys.stdout = sys.stderr = self.devnull
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        sys.stdout = sys.stderr = io.StringIO()
         app = WsgiApplication(
         src_root=realpath(dirname(__file__)),
             urls=(
@@ -40,7 +42,8 @@ class TestWsgiApp(unittest.TestCase):
 
     def tearDown(self):
         self.server.join()
-        self.devnull.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
 
     def test_empty_response(self):
         response = make_request("http://127.0.0.1:8000/empty")

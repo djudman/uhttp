@@ -12,7 +12,7 @@ def login(request: Request):
     password = data["password"]
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     config = request.app.config
-    admins = config["uhttp"]["admins"]
+    admins = config["admins"]
     for admin_username, admin_password_hash in admins:
         if admin_username == username and admin_password_hash == password_hash:
             sid = create_session(admin_username, admin_password_hash)

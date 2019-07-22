@@ -129,9 +129,6 @@ class WsgiApplication:
         if urls:
             for method, path, handler in urls:
                 self.router.add_route(path, handler, method=method)
-        uhttp_config = config.get("uhttp")
-        self.tokens = self._get_access_tokens(uhttp_config.get("admins", [])) \
-                      if uhttp_config else tuple()
 
     def wsgi_request(self, wsgi_environ):
         request = None
@@ -179,8 +176,3 @@ class WsgiApplication:
         status, response_headers, response_body = self.wsgi_request(environ)
         start_response(status, response_headers)
         return [response_body]
-
-    def _get_access_tokens(self, admins):
-        tokens = [hashlib.sha256(f"{name}{password_hash}".encode()).hexdigest()
-                  for name, password_hash in admins]
-        return tuple(tokens)
