@@ -10,7 +10,12 @@ def auth_required(method=None, *, login_url=None):
             try:
                 token = request.http_variables.get("HTTP_AUTH_TOKEN")
                 if not token:
-                    token = request.http_variables.get("HTTP_COOKIE")
+                    cookies = request.http_variables.get("HTTP_COOKIE")
+                    cookies = filter(lambda cookie: "=" in cookie, cookies.split(";"))
+                    values = [cookie.split("=") for cookie in cookies]
+                    _, token = list(
+                        filter(lambda value: value[0] == "token", values)
+                    ).pop()
                 if not token:
                     raise InvalidAuthToken()
                 config = request.app.config
